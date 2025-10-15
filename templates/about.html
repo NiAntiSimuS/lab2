@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}О проекте - Новостной Блог{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="mb-4">О проекте</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text">
+                    Это новостной блог, созданный в рамках учебного проекта на Flask. 
+                    Мы предоставляем актуальные новости и интересные статьи на различные темы.
+                </p>
+                
+                <p class="card-text">
+                    Наша цель - информировать читателей о последних событиях в мире технологий, 
+                    науки, культуры и других сферах жизни.
+                </p>
+                
+                <h5 class="mt-4">Технологии проекта:</h5>
+                <ul>
+                    <li>Backend: Flask (Python)</li>
+                    <li>Frontend: Bootstrap 5</li>
+                    <li>Шаблонизатор: Jinja2</li>
+                    <li>Стили: CSS3</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}  

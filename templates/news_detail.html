@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Новостной Блог{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <article class="card">
+            <div class="card-body">
+                <h1 class="card-title">{{ article.title }}</h1>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-muted">
+                        <i class="far fa-calendar me-1"></i>
+                        {{ article.date.strftime('%d.%m.%Y') }}
+                    </div>
+                    {% if article.date == today %}
+                    <span class="badge bg-danger">Новая статья!</span>
+                    {% endif %}
+                </div>
+                
+                <div class="article-content">
+                    <p>{{ article.content }}</p>
+                    <p>Это полный текст статьи с ID {{ article.id }}. В реальном приложении здесь был бы расширенный контент.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Назад к списку новостей
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+{% endblock %}
