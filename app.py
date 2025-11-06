@@ -34,7 +34,7 @@ class Article(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     category = db.Column(db.String(50), default='general')
-    comments = db.relationship('Comment', backref='article', lazy=True)
+    comments = db.relationship('Comment', backref='article', lazy=True, cascade='all, delete-orphan')
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,10 +47,20 @@ class Comment(db.Model):
 ARTICLES_JSON = 'articles.json'
 COMMENTS_JSON = 'comments.json'
 
+def init_json_files():
+    """Инициализация JSON файлов если их нет"""
+    if not os.path.exists(ARTICLES_JSON):
+        save_json_data(ARTICLES_JSON, [])
+    if not os.path.exists(COMMENTS_JSON):
+        save_json_data(COMMENTS_JSON, [])
+
 def load_json_data(filename):
     if os.path.exists(filename):
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return []
     return []
 
 def save_json_data(filename, data):
@@ -60,17 +70,6 @@ def save_json_data(filename, data):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-# Моковые данные для демонстрации (можно удалить после наполнения БД)
-articles = [
-    {
-        'id': 1,
-        'title': 'Искусственный интеллект в современном мире',
-        'content': 'Искусственный интеллект продолжает трансформировать различные отрасли...',
-        'date': date.today(),
-        'published': True
-    }
-]
 
 # Маршруты для веб-интерфейса (SQL)
 @app.route('/')
@@ -171,7 +170,8 @@ def login():
         if user and check_password_hash(user.hashed_password, password):
             login_user(user)
             flash('Вы успешно вошли в систему!', 'success')
-            return redirect(url_for('index'))
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('index'))
         else:
             flash('Неверный email или пароль', 'error')
     
@@ -237,8 +237,6 @@ def delete_article(id):
         flash('Вы можете удалять только свои статьи', 'error')
         return redirect(url_for('index'))
     
-    # Удаляем связанные комментарии
-    Comment.query.filter_by(article_id=id).delete()
     db.session.delete(article)
     db.session.commit()
     flash('Статья успешно удалена!', 'success')
@@ -268,7 +266,7 @@ def api_articles_list():
 @app.route('/api/articles/<int:id>', methods=['GET'])
 def api_article_detail(id):
     articles_data = load_json_data(ARTICLES_JSON)
-    article = next((a for a in articles_data if a['id'] == id), None)
+    article = next((a for a in articles_data if a.get('id') == id), None)
     if article:
         return jsonify(article)
     return jsonify({'error': 'Статья не найдена'}), 404
@@ -313,7 +311,7 @@ def api_update_article(id):
     data = request.get_json()
     articles_data = load_json_data(ARTICLES_JSON)
     
-    article_index = next((i for i, a in enumerate(articles_data) if a['id'] == id), None)
+    article_index = next((i for i, a in enumerate(articles_data) if a.get('id') == id), None)
     if article_index is None:
         return jsonify({'error': 'Статья не найдена'}), 404
     
@@ -333,7 +331,7 @@ def api_update_article(id):
 @app.route('/api/articles/<int:id>', methods=['DELETE'])
 def api_delete_article(id):
     articles_data = load_json_data(ARTICLES_JSON)
-    article_index = next((i for i, a in enumerate(articles_data) if a['id'] == id), None)
+    article_index = next((i for i, a in enumerate(articles_data) if a.get('id') == id), None)
     
     if article_index is None:
         return jsonify({'error': 'Статья не найдена'}), 404
@@ -351,7 +349,7 @@ def api_comments_list():
 @app.route('/api/comment/<int:id>', methods=['GET'])
 def api_comment_detail(id):
     comments_data = load_json_data(COMMENTS_JSON)
-    comment = next((c for c in comments_data if c['id'] == id), None)
+    comment = next((c for c in comments_data if c.get('id') == id), None)
     if comment:
         return jsonify(comment)
     return jsonify({'error': 'Комментарий не найдена'}), 404
@@ -383,7 +381,7 @@ def api_update_comment(id):
     data = request.get_json()
     comments_data = load_json_data(COMMENTS_JSON)
     
-    comment_index = next((i for i, c in enumerate(comments_data) if c['id'] == id), None)
+    comment_index = next((i for i, c in enumerate(comments_data) if c.get('id') == id), None)
     if comment_index is None:
         return jsonify({'error': 'Комментарий не найден'}), 404
     
@@ -401,7 +399,7 @@ def api_update_comment(id):
 @app.route('/api/comment/<int:id>', methods=['DELETE'])
 def api_delete_comment(id):
     comments_data = load_json_data(COMMENTS_JSON)
-    comment_index = next((i for i, c in enumerate(comments_data) if c['id'] == id), None)
+    comment_index = next((i for i, c in enumerate(comments_data) if c.get('id') == id), None)
     
     if comment_index is None:
         return jsonify({'error': 'Комментарий не найден'}), 404
@@ -410,9 +408,10 @@ def api_delete_comment(id):
     save_json_data(COMMENTS_JSON, comments_data)
     return jsonify({'message': 'Комментарий удален', 'comment': deleted_comment})
 
-# Инициализация базы данных
+# Инициализация базы данных и JSON файлов
 with app.app_context():
     db.create_all()
+    init_json_files()
 
 if __name__ == '__main__':
     app.run(debug=True)
