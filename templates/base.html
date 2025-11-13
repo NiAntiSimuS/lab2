@@ -1,31 +1,105 @@
-<!-- В navbar после существующих пунктов меню -->
-<ul class="navbar-nav ms-auto">
-    <!-- существующие пункты... -->
-    
-    {% if current_user.is_authenticated %}
-    <li class="nav-item">
-        <a class="nav-link {% if request.endpoint == 'create_article' %}active{% endif %}" 
-           href="{{ url_for('create_article') }}">
-            <i class="fas fa-plus me-1"></i>Создать статью
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('logout') }}">
-            <i class="fas fa-sign-out-alt me-1"></i>Выйти ({{ current_user.name }})
-        </a>
-    </li>
-    {% else %}
-    <li class="nav-item">
-        <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" 
-           href="{{ url_for('login') }}">
-            <i class="fas fa-sign-in-alt me-1"></i>Войти
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" 
-           href="{{ url_for('register') }}">
-            <i class="fas fa-user-plus me-1"></i>Регистрация
-        </a>
-    </li>
-    {% endif %}
-</ul>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Новостной Блог{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                Новостной Блог
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'articles_list' %}active{% endif %}" href="{{ url_for('articles_list') }}">
+                            <i class="fas fa-newspaper me-1"></i>Все статьи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>О проекте
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">
+                            <i class="fas fa-address-book me-1"></i>Контакты
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'feedback' %}active{% endif %}" href="{{ url_for('feedback') }}">
+                            <i class="fas fa-comment me-1"></i>Обратная связь
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'create_article' %}active{% endif %}" 
+                           href="{{ url_for('create_article') }}">
+                            <i class="fas fa-plus me-1"></i>Создать статью
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Выйти ({{ current_user.name }})
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" 
+                           href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Войти
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" 
+                           href="{{ url_for('register') }}">
+                            <i class="fas fa-user-plus me-1"></i>Регистрация
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Новостной Блог. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

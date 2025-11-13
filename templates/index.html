@@ -19,20 +19,34 @@
                     <a href="{{ url_for('news_detail', id=article.id) }}" class="text-decoration-none text-dark">
                         {{ article.title }}
                     </a>
-                    {% if article.date == today %}
+                    {% if article.created_date.date() == today %}
                     <span class="badge bg-danger ms-2">Новое!</span>
                     {% endif %}
+                    <span class="badge bg-secondary ms-1">{{ article.category|title }}</span>
                 </h5>
                 <p class="card-text">
-                    {{ article.content }}
+                    {{ article.text[:150] }}{% if article.text|length > 150 %}...{% endif %}
                 </p>
             </div>
             <div class="card-footer">
                 <small class="text-muted">
                     <i class="far fa-calendar me-1"></i>
-                    {{ article.date.strftime('%d.%m.%Y') }}
+                    {{ article.created_date.strftime('%d.%m.%Y') }}
+                    <i class="fas fa-user ms-2 me-1"></i>
+                    {{ article.author.name }}
                 </small>
             </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            Статьи пока не добавлены. 
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('create_article') }}" class="alert-link">Создайте первую статью!</a>
+            {% else %}
+            <a href="{{ url_for('register') }}" class="alert-link">Зарегистрируйтесь</a> чтобы создавать статьи.
+            {% endif %}
         </div>
     </div>
     {% endfor %}
