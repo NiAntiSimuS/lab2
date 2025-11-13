@@ -12,13 +12,11 @@ app.secret_key = 'your-secret-key-123'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///news_blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Инициализация расширений
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Пожалуйста, войдите в систему для доступа к этой странице.'
 
-# Модели для SQL базы (Лаба 2)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -43,7 +41,6 @@ class Comment(db.Model):
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'), nullable=False)
     author_name = db.Column(db.String(100), nullable=False)
 
-# JSON файлы для API (Лаба 4)
 ARTICLES_JSON = 'articles.json'
 COMMENTS_JSON = 'comments.json'
 
@@ -71,7 +68,10 @@ def save_json_data(filename, data):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+<<<<<<< HEAD
 # Маршруты для веб-интерфейса (SQL)
+=======
+>>>>>>> ad2a52502e09e30593a4e392d03d50109efa65d6
 @app.route('/')
 def index():
     articles = Article.query.order_by(Article.created_date.desc()).all()
@@ -135,7 +135,6 @@ def news_detail(id):
     
     return render_template('news_detail.html', article=article, today=date.today())
 
-# Аутентификация
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -242,7 +241,6 @@ def delete_article(id):
     flash('Статья успешно удалена!', 'success')
     return redirect(url_for('index'))
 
-# Страницы со статьями и фильтрацией
 @app.route('/articles')
 def articles_list():
     articles = Article.query.order_by(Article.created_date.desc()).all()
@@ -257,7 +255,6 @@ def articles_by_category(category):
     articles = Article.query.filter_by(category=category).order_by(Article.created_date.desc()).all()
     return render_template('articles_list.html', articles=articles, category=category)
 
-# API маршруты для работы с JSON (Лаба 4)
 @app.route('/api/articles', methods=['GET'])
 def api_articles_list():
     articles_data = load_json_data(ARTICLES_JSON)
@@ -287,7 +284,6 @@ def api_articles_sorted_by_date():
 def api_create_article():
     data = request.get_json()
     
-    # Валидация
     if not data or not data.get('title') or not data.get('content'):
         return jsonify({'error': 'Название и содержание обязательны'}), 400
     
@@ -315,7 +311,6 @@ def api_update_article(id):
     if article_index is None:
         return jsonify({'error': 'Статья не найдена'}), 404
     
-    # Валидация
     if not data or not data.get('title') or not data.get('content'):
         return jsonify({'error': 'Название и содержание обязательны'}), 400
     
@@ -340,7 +335,6 @@ def api_delete_article(id):
     save_json_data(ARTICLES_JSON, articles_data)
     return jsonify({'message': 'Статья удалена', 'article': deleted_article})
 
-# API для комментариев (JSON)
 @app.route('/api/comment', methods=['GET'])
 def api_comments_list():
     comments_data = load_json_data(COMMENTS_JSON)
@@ -408,7 +402,10 @@ def api_delete_comment(id):
     save_json_data(COMMENTS_JSON, comments_data)
     return jsonify({'message': 'Комментарий удален', 'comment': deleted_comment})
 
+<<<<<<< HEAD
 # Инициализация базы данных и JSON файлов
+=======
+>>>>>>> ad2a52502e09e30593a4e392d03d50109efa65d6
 with app.app_context():
     db.create_all()
     init_json_files()
