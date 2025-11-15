@@ -68,6 +68,10 @@ def save_json_data(filename, data):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+<<<<<<< HEAD
+# Маршруты для веб-интерфейса (SQL)
+=======
+>>>>>>> ad2a52502e09e30593a4e392d03d50109efa65d6
 @app.route('/')
 def index():
     articles = Article.query.order_by(Article.created_date.desc()).all()
@@ -398,6 +402,10 @@ def api_delete_comment(id):
     save_json_data(COMMENTS_JSON, comments_data)
     return jsonify({'message': 'Комментарий удален', 'comment': deleted_comment})
 
+<<<<<<< HEAD
+# Инициализация базы данных и JSON файлов
+=======
+>>>>>>> ad2a52502e09e30593a4e392d03d50109efa65d6
 with app.app_context():
     db.create_all()
     init_json_files()
