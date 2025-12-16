@@ -1,5 +1,3 @@
-[file name]: app.py
-[file content begin]
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -71,7 +69,7 @@ def token_required(f):
         if 'Authorization' in request.headers:
             auth_header = request.headers['Authorization']
             try:
-                token = auth_header.split(" ")[1]  # Bearer <token>
+                token = auth_header.split(" ")[1]  
             except IndexError:
                 return jsonify({'error': 'Некорректный формат заголовка Authorization'}), 401
         
@@ -79,10 +77,8 @@ def token_required(f):
             return jsonify({'error': 'Токен отсутствует'}), 401
         
         try:
-            # Декодируем токен
             data = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
             
-            # Проверяем тип токена
             if data.get('type') != 'access':
                 return jsonify({'error': 'Неверный тип токена'}), 401
                 
@@ -98,7 +94,6 @@ def token_required(f):
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Недействительный токен'}), 401
         
-        # Передаем пользователя в функцию
         return f(current_user_obj, *args, **kwargs)
     
     return decorated
@@ -806,4 +801,3 @@ with app.app_context():
 
 if __name__ == '__main__':
     app.run(debug=True)
-[file content end]
